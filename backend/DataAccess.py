@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 import mysql.connector as connector
-import json, os
+import json, os, uuid
 from functools import reduce
 
 
@@ -97,6 +97,12 @@ class LocalStorageAccess(DataAccess):
 
     def add(self, entity: str, col: List[str], val: List[str]):
         direct = self.path + entity.lower() + '.json'
+
+        # Nếu không có cột "id", thì tự thêm
+        if 'id' not in col:
+            col = ['id'] + col
+            val = [str(uuid.uuid4())] + val
+
         try:
             with open(direct, 'r+') as file:
                 data = json.load(file)
@@ -108,6 +114,7 @@ class LocalStorageAccess(DataAccess):
                 os.makedirs(self.path)
             with open(direct, 'w') as file:
                 json.dump([dict(zip(col, val))], file, indent=4)
+
 
     def deleteById(self, entity, id):
         direct = self.path + entity.lower() + '.json'
