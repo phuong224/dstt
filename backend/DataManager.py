@@ -2,7 +2,7 @@ from DataAccess import Factory
 
 class DataManager:
     def __init__ (self):
-        factory = Factory('mysql')
+        factory = Factory('local')
         self.database = factory.createDataAccess()
         self.cat_num = len(self.getCategoryData())
 
@@ -30,14 +30,14 @@ class DataManager:
          
 
     def addProductData(self, name, price, describes, img, p_type):
-        cat_id = None
-        for item in self.getCategoryData():
-            if item['name'] == p_type:
-                cat_id = item['id']
+        cat_id = next(
+            (item['id'] for item in self.getCategoryData() if item['name'] == p_type),
+            None
+        )
 
         if cat_id is None:
             cat_id = self.getCatId()
-            self.database.add('Category', ['id','name'], [cat_id, name])
+            self.database.add('Category', ['id','name'], [cat_id, p_type])
             self.cat_num += 1
         
         self.database.add('Product', ['name', 'price', 'describes', 'img', 'cat_id'], [name, price, describes, img, cat_id])

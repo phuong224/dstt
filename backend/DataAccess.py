@@ -92,28 +92,29 @@ class LocalStorageAccess(DataAccess):
             with open(self.path + entity.lower() + '.json', 'r') as file:
                 data = json.load(file)
                 return data
-        except FileNotFoundError:
+        except Exception:
             return []
 
     def add(self, entity: str, col: List[str], val: List[str]):
         direct = self.path + entity.lower() + '.json'
 
-        # Nếu không có cột "id", thì tự thêm
         if 'id' not in col:
             col = ['id'] + col
             val = [str(uuid.uuid4())] + val
 
         try:
-            with open(direct, 'r+') as file:
-                data = json.load(file)
-                data.append(dict(zip(col, val)))
+            data = self.get(entity)
+            data.append(dict(zip(col, val)))
+            with open(direct, 'w') as file:
                 file.seek(0)
                 json.dump(data, file, indent=4)
+                file.truncate()
         except FileNotFoundError:
             if not os.path.exists(self.path):
                 os.makedirs(self.path)
             with open(direct, 'w') as file:
                 json.dump([dict(zip(col, val))], file, indent=4)
+
 
 
     def deleteById(self, entity, id):
@@ -137,7 +138,6 @@ class LocalStorageAccess(DataAccess):
             return enid[0] if enid else None
             
         except FileNotFoundError:
-            print ("No file found!")
             return None
             
     def close(self):

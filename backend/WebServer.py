@@ -144,18 +144,28 @@ class WebServer:
     def set_routes(self, app):
         @app.route("/danh-sach-san-pham")
         def danh_sach_san_pham():
-            return self.getproducts()
+            try:
+                product = self.getproducts()
+            except Exception:
+                product = jsonify([])
+            return product
         
         @app.route("/danh-sach-san-pham-da-mua")
         def danh_sach_san_pham_da_mua():
-            return self.getPreviousProduct()
+            try:
+                product = self.getPreviousProduct()
+            except Exception:
+                product = jsonify([])
+            return product
         
         @app.route("/danh-sach-san-pham-goi-y")
         def danh_sach_san_pham_goi_y():
-            return self.getProposeProduct(5)
+            try:
+                product = self.getProposeProduct(5)
+            except Exception:
+                product = jsonify([])
+            return product
         
-        from flask import request, session, jsonify
-
         @app.route("/dang-nhap", methods=["POST"])
         def dang_nhap():
             data = request.get_json()
